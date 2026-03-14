@@ -20,6 +20,10 @@ app.use(bodyParser.json());
 // Serve frontend files
 app.use(express.static(path.join(__dirname, 'frontend')));
 
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend', 'login.html'));
+});
+
 // Database Connection
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
