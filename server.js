@@ -78,6 +78,9 @@ app.put('/api/auth/update-password', (req, res) => {
 
 // --- ASSIGNMENTS ---
 
+
+
+
 app.get('/api/assignments/:userId', (req, res) => {
   db.query('SELECT * FROM assignments WHERE userId = ?', [req.params.userId], (err, results) => {
     if (err) return res.status(500).json({ success: false, error: err.message });
