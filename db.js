@@ -1,5 +1,5 @@
 const mysql = require('mysql2');
-
+ 
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT || 3306,
@@ -8,5 +8,6 @@ const db = mysql.createConnection({
   database: process.env.DB_NAME,
   ssl: { rejectUnauthorized: false }
 });
-
+ 
 module.exports = db;
+ 
