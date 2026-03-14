@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NECTA Assist - Assignments</title>
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    
+    body {
+      min-height: 100vh;
+      font-family: "Segoe UI", sans-serif;
+      background: url('images/background.jpg') no-repeat center/cover;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+
+    body::before {
+      content: ""; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 0;
+    }
+
+    /* Top Bar - Matched to Home */
+    .top-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 60px;
+      background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px);
+      display: flex; align-items: center; padding: 0 20px; z-index: 998;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .menu-icon { color: white; font-size: 28px; cursor: pointer; margin-right: 15px; }
+    .app-title { color: white; font-size: 22px; font-weight: 600; }
+
+    /* Sidebar - Matched to Home */
+    .side-menu {
+      position: fixed; top: 60px; left: -280px; width: 280px; height: calc(100vh - 60px);
+      background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); transition: 0.3s ease;
+      z-index: 999; display: flex; flex-direction: column; border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .side-menu.open { left: 0; }
+    
+    .menu-links { flex: 1; padding: 20px 0; }
+    .side-menu a {
+      color: white; font-size: 18px; display: block; padding: 15px 25px; text-decoration: none; transition: 0.3s;
+    }
+    .side-menu a:hover, .side-menu a.active {
+      background: rgba(102, 126, 234, 0.2); border-left: 3px solid #667eea;
+    }
+
+    /* User Profile Section */
+    .user-section {
+      border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; display: flex; align-items: center; gap: 12px; cursor: pointer;
+    }
+    .user-avatar {
+      width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex; align-items: center; justify-content: center; font-weight: bold; color: white;
+    }
+    .user-name { color: white; font-size: 16px; font-weight: 600; }
+
+    /* Main Container */
+    .container { position: relative; z-index: 1; width: 95%; max-width: 900px; margin-top: 80px; padding: 20px; }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3); padding: 25px; border-radius: 16px; margin-bottom: 20px;
+    }
+
+    .bar-bg { height: 10px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-top: 10px; overflow: hidden; }
+    .bar-fill { height: 100%; background: #667eea; width: 0%; transition: 0.5s; }
+
+    .item-card {
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+      padding: 15px; border-radius: 12px; margin-bottom: 12px;
+    }
+    .item-card.done { opacity: 0.5; border-left: 5px solid #06d6a0; }
+
+    .tag { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-right: 5px; text-transform: uppercase; }
+    .high { background: #ff4d4d; }
+    .med { background: #ffd166; color: #000; }
+    .low { background: #06d6a0; color: #000; }
+
+    /* Modal Styling */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: #1a1a1a; padding: 30px; border-radius: 15px; width: 90%; max-width: 450px; border: 1px solid #333; }
+    
+    input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; }
+    
+    button { padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
+    .btn-main { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+    .btn-sub { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; margin-left: 5px; }
+
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 997; }
+    .overlay.active { display: block; }
+  </style>
+</head>
+
+<body>
+  <div class="top-bar">
+    <div class="menu-icon" onclick="navToggle()">☰</div>
+    <div class="app-title">NECTA Assist</div>
+  </div>
+
+  <div class="overlay" id="overlay" onclick="navToggle()"></div>
+
+  <div id="sideMenu" class="side-menu">
+    <div class="menu-links">
+      <a href="home.html">HOME</a>
+      <a href="dashboard.html">GRADES</a>
+      <a href="assignments.html" class="active">ASSIGNMENTS</a>
+    </div>
+
+    <div class="user-section" onclick="window.location.href='settings.html'">
+      <div class="user-avatar" id="userAvatar"></div>
+      <div class="user-info">
+        <div class="user-name" id="userName">Student</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="glass-card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>My Assignments</h2>
+        <button class="btn-main" onclick="showPopup()">+ New Task</button>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <div style="display: flex; justify-content: space-between; font-size: 13px;">
+          <span id="statsText">0 tasks completed</span>
+          <span id="percText">0%</span>
+        </div>
+        <div class="bar-bg"><div class="bar-fill" id="barFill"></div></div>
+      </div>
+    </div>
+
+    <div id="taskList"></div>
+  </div>
+
+  <div class="modal" id="taskModal">
+    <div class="modal-content">
+      <h3 id="formTitle">Add Assignment</h3>
+      <form onsubmit="handleSave(event)">
+        <input type="hidden" id="editId">
+        <input type="text" id="taskTitle" placeholder="Assignment Title" required>
+        <select id="taskSub" required>
+          <option value="">Select Subject</option>
+          <option value="Mathematics">Mathematics</option>
+          <option value="English">English</option>
+          <option value="Swahili">Swahili</option>
+          <option value="History">History</option>
+          <option value="Geography">Geography</option>
+          <option value="Civics">Civics</option>
+          <option value="Physics">Physics</option>
+          <option value="Biology">Biology</option>
+          <option value="Chemistry">Chemistry</option>
+          <option value="Bookkeeping">Bookkeeping</option>
+          <option value="Commerce">Commerce</option>
+          <option value="Computer">Computer</option>
+        </select>
+        <input type="date" id="taskDate" required>
+        <select id="taskPriority">
+          <option value="high">High Priority</option>
+          <option value="med" selected>Medium Priority</option>
+          <option value="low">Low Priority</option>
+        </select>
+        <textarea id="taskDesc" placeholder="Extra notes..."></textarea>
+        
+        <div style="margin-top: 15px; display: flex; gap: 10px;">
+          <button type="submit" class="btn-main" style="flex: 1;">Save</button>
+          <button type="button" class="btn-sub" style="flex: 1;" onclick="hidePopup()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const userId = sessionStorage.getItem("userId");
+    const userName = sessionStorage.getItem("loggedInUser") || "Student";
+    const API_URL = "http://localhost:3000/api/assignments";
+
+    // CHECK IF LOGGED IN
+    if (!userId) {
+        window.location.href = "login.html";
+    }
+
+    //  User Info
+    document.getElementById("userName").textContent = userName;
+    document.getElementById("userAvatar").textContent = userName.charAt(0).toUpperCase();
+
+    function navToggle() {
+      document.getElementById("sideMenu").classList.toggle("open");
+      document.getElementById("overlay").classList.toggle("active");
+    }
+
+    // 1. LOAD FROM MYSQL
+    async function loadAssignments() {
+      try {
+        const res = await fetch(`${API_URL}/${userId}`);
+        const data = await res.json();
+        if (data.success) {
+          renderUI(data.assignments);
+        }
+      } catch (err) {
+        console.error("Error loading tasks:", err);
+      }
+    }
+
+    // 2. RENDER UI
+    function renderUI(tasks) {
+      const listDiv = document.getElementById("taskList");
+      listDiv.innerHTML = "";
+
+      tasks.forEach(t => {
+        const isDone = t.completed == 1; // MySQL stores boolean as 0 or 1
+        const card = document.createElement("div");
+        card.className = `item-card ${isDone ? 'done' : ''}`;
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <strong style="font-size:18px;">${t.title}</strong><br>
+              <small style="color:#aaa;">${t.subject} • Due: ${t.due_date.split('T')[0]}</small>
+            </div>
+            <div>
+              <button class="btn-sub" onclick="toggleDone(${t.id})">${isDone ? '↩️' : '✅'}</button>
+              <button class="btn-sub" onclick='editTask(${JSON.stringify(t)})'>✏️</button>
+              <button class="btn-sub" onclick="removeTask(${t.id})">🗑️</button>
+            </div>
+          </div>
+          <div style="margin-top:10px;">
+            <span class="tag ${t.priority}">${t.priority}</span>
+          </div>
+        `;
+        listDiv.appendChild(card);
+      });
+
+      const finished = tasks.filter(t => t.completed == 1).length;
+      const total = tasks.length;
+      const ratio = total > 0 ? Math.round((finished / total) * 100) : 0;
+
+      document.getElementById("statsText").textContent = `${finished} of ${total} tasks finished`;
+      document.getElementById("percText").textContent = ratio + "%";
+      document.getElementById("barFill").style.width = ratio + "%";
+    }
+
+    // 3. SAVE / UPDATE TO MYSQL
+    async function handleSave(e) {
+      e.preventDefault();
+      const id = document.getElementById("editId").value;
+      
+      const payload = {
+          userId: userId,
+          title: document.getElementById("taskTitle").value,
+          subject: document.getElementById("taskSub").value,
+          due_date: document.getElementById("taskDate").value,
+          priority: document.getElementById("taskPriority").value,
+          description: document.getElementById("taskDesc").value
+      };
+
+      const endpoint = id ? `${API_URL}/update/${id}` : `${API_URL}/add`;
+      const method = id ? 'PUT' : 'POST';
+
+      try {
+        const res = await fetch(endpoint, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (result.success) {
+            hidePopup();
+            loadAssignments(); 
+        }
+      } catch (err) {
+          alert("Check terminal! Server might be down.");
+      }
+    }
+
+    // 4. TOGGLE STATUS IN MYSQL
+    async function toggleDone(id) {
+      await fetch(`${API_URL}/toggle/${id}`, { method: 'PATCH' });
+      loadAssignments();
+    }
+
+    // 5. DELETE FROM MYSQL
+    async function removeTask(id) {
+      if(!confirm("Delete this?")) return;
+      await fetch(`${API_URL}/delete/${id}`, { method: 'DELETE' });
+      loadAssignments();
+    }
+
+    function editTask(t) {
+      document.getElementById("editId").value = t.id;
+      document.getElementById("taskTitle").value = t.title;
+      document.getElementById("taskSub").value = t.subject;
+      document.getElementById("taskDate").value = t.due_date.split('T')[0];
+      document.getElementById("taskPriority").value = t.priority;
+      document.getElementById("taskDesc").value = t.description;
+      document.getElementById("formTitle").textContent = "Edit Task";
+      document.getElementById("taskModal").classList.add("active");
+    }
+
+    function showPopup() {
+      document.getElementById("editId").value = "";
+      document.getElementById("taskTitle").value = "";
+      document.getElementById("formTitle").textContent = "Add Assignment";
+      document.getElementById("taskModal").classList.add("active");
+    }
+
+    function hidePopup() { document.getElementById("taskModal").classList.remove("active"); }
+
+    // Initial Load
+    loadAssignments();
+  </script>
+</body>
+</html>

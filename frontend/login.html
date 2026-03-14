@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NECTA Assist - Login</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: url('images/background.jpg') no-repeat center/cover;
+      font-family: 'Segoe UI', sans-serif;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .glass-card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 400px;
+      padding: 40px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .header { text-align: center; margin-bottom: 30px; }
+    .header h1 { font-size: 22px; margin-bottom: 5px; }
+
+    .tabs {
+      display: flex;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 5px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: transparent;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+
+    .tab-btn.active { background: rgba(255, 255, 255, 0.2); }
+
+    .form-box { display: none; }
+    .form-box.active { display: block; }
+
+    .field { margin-bottom: 15px; }
+    .field label { display: block; margin-bottom: 5px; font-size: 14px; }
+    .field input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.2);
+      color: white;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .error { color: #ff8080; font-size: 13px; margin-top: 5px; display: none; }
+    .error.show { display: block; }
+
+    .strength-meter {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      margin-top: 8px;
+    }
+    .strength-bar { height: 100%; width: 0%; transition: 0.3s; border-radius: 2px; }
+    .weak { background: #ff4d4d; width: 30%; }
+    .med { background: #ffd166; width: 60%; }
+    .strong { background: #06d6a0; width: 100%; }
+
+    .success-alert {
+      background: rgba(6, 214, 160, 0.2);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      text-align: center;
+      display: none;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glass-card">
+    <div class="header">
+       <h1>📚 ROAD TO A DIVISION 1</h1>
+      <p style="opacity: 0.8; font-size: 14px;">NECTA ASSIST</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showForm('login')">Login</button>
+      <button class="tab-btn" onclick="showForm('signup')">Sign Up</button>
+    </div>
+
+    <div id="statusInfo" class="success-alert"></div>
+
+    <div id="loginSection" class="form-box active">
+      <form onsubmit="doLogin(event)">
+        <div class="field">
+          <label>Username</label>
+          <input type="text" id="userIn" required>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="passIn" required>
+          <div id="loginErr" class="error"></div>
+        </div>
+        <button type="submit" class="submit-btn" id="loginBtn">Log In</button>
+      </form>
+    </div>
+
+    <div id="signupSection" class="form-box">
+      <form onsubmit="doSignup(event)">
+        <div class="field">
+          <label>Choose Username</label>
+          <input type="text" id="newName" required>
+          <div id="nameErr" class="error"></div>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="newPass" oninput="checkPass()" required>
+          <div class="strength-meter"><div id="meter" class="strength-bar"></div></div>
+        </div>
+        <div class="field">
+          <label>Confirm Password</label>
+          <input type="password" id="confirmPass" required>
+          <div id="confirmErr" class="error"></div>
+        </div>
+        <button type="submit" class="submit-btn" id="signupBtn">Create Account</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://localhost:3000/api';
+
+    // CHECK IF LOGGED IN
+    if (sessionStorage.getItem('loggedInUser')) {
+      window.location.href = 'home.html';
+    }
+
+    function showForm(type) {
+      document.querySelectorAll('.form-box').forEach(f => f.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.error').forEach(e => e.classList.remove('show'));
+      
+      if(type === 'login') {
+        document.getElementById('loginSection').classList.add('active');
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+      } else {
+        document.getElementById('signupSection').classList.add('active');
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+      }
+    }
+
+    function checkPass() {
+      const p = document.getElementById('newPass').value;
+      const m = document.getElementById('meter');
+      m.className = 'strength-bar';
+      if(p.length > 0 && p.length < 6) m.classList.add('weak');
+      else if(p.length >= 6 && p.length < 10) m.classList.add('med');
+      else if(p.length >= 10) m.classList.add('strong');
+    }
+
+async function doSignup(e) {
+      e.preventDefault();
+      const user = document.getElementById('newName').value;
+      const pass = document.getElementById('newPass').value;
+      const confirm = document.getElementById('confirmPass').value;
+
+      if(pass !== confirm) {
+        const err = document.getElementById('confirmErr');
+        err.textContent = "Passwords don't match!";
+        err.classList.add('show');
+        return;
+      }
+
+      const btn = document.getElementById('signupBtn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      try {
+        const response = await fetch('http://localhost:3000/api/auth/signup', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ username: user, password: pass })
+        });
+
+        const data = await response.json(); // Fixed: was 'res'
+        
+        if(!response.ok) { // Fixed: was 'res'
+            throw new Error(data.error || 'Signup failed');
+        }
+
+        const msg = document.getElementById('statusInfo');
+        msg.textContent = "Account ready! Switching to login...";
+        msg.style.display = 'block';
+
+        setTimeout(() => {
+          showForm('login');
+          document.getElementById('userIn').value = user;
+          msg.style.display = 'none';
+        }, 2000);
+
+      } catch (err) {
+        const eBox = document.getElementById('nameErr');
+        eBox.textContent = err.message;
+        eBox.classList.add('show');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+      }
+    }
+
+    async function doLogin(e) {
+      e.preventDefault();
+      const user = document.getElementById('userIn').value;
+      const pass = document.getElementById('passIn').value;
+
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = true;
+      btn.textContent = 'Checking...';
+
+      try {
+        const res = await fetch(`${API}/auth/login`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ username: user, password: pass })
+        });
+
+        const data = await res.json();
+        if(!res.ok) throw new Error(data.error);
+
+        sessionStorage.setItem('loggedInUser', data.user.username);
+        sessionStorage.setItem('userId', data.user.id);
+
+        window.location.href = "home.html";
+
+      } catch (err) {
+        const eBox = document.getElementById('loginErr');
+        eBox.textContent = "Invalid username or password";
+        eBox.classList.add('show');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Log In';
+      }
+    }
+  </script>
+</body>
+</html>

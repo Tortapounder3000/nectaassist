@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NECTA Assist - Home</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: url('images/background.jpg') no-repeat center/cover;
+      font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
+      position: relative;
+      padding: 20px;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 0;
+    }
+
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(15px);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 998;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .menu-icon {
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      margin-right: 15px;
+    }
+
+    .app-title {
+      color: white;
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .side-menu {
+      position: fixed;
+      top: 60px;
+      left: -280px;
+      width: 280px;
+      height: calc(100vh - 60px);
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(20px);
+      transition: 0.3s ease;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .side-menu.open {
+      left: 0;
+    }
+
+    .menu-links {
+      flex: 1;
+      padding: 20px 0;
+    }
+
+    .side-menu a {
+      color: white;
+      font-size: 18px;
+      display: block;
+      padding: 15px 25px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .side-menu a:hover, .side-menu a.active {
+      background: rgba(102, 126, 234, 0.2);
+      border-left: 3px solid #667eea;
+    }
+
+    .user-section {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+    }
+
+    .user-name {
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .glass-card {
+      position: relative;
+      z-index: 1;
+      width: 90%;
+      max-width: 900px;
+      margin-top: 80px;
+      padding: 40px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+    }
+
+    h1 { text-align: center; font-size: 36px; margin-bottom: 10px; }
+    h2 { margin-top: 30px; text-align: center; font-size: 24px; }
+
+    .timetable-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .timetable-table th, .timetable-table td {
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 12px;
+      color: white;
+      text-align: center;
+    }
+
+    .timetable-table td { cursor: pointer; }
+    .timetable-table td:hover { background: rgba(255, 255, 255, 0.1); }
+
+    .deadline-input-container { text-align: center; margin: 20px 0; }
+    .deadline-input {
+      padding: 12px;
+      width: 60%;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .add-btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      font-weight: 600;
+    }
+
+    #deadlineList { list-style: none; margin-top: 20px; text-align: center; }
+    #deadlineList li {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .delete-btn {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 997;
+      display: none;
+    }
+
+    .overlay.active { display: block; }
+  </style>
+</head>
+
+<body>
+
+  <div class="top-bar">
+    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+    <div class="app-title">NECTA Assist</div>
+  </div>
+
+  <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+  <div id="sideMenu" class="side-menu">
+    <div class="menu-links">
+      <a href="home.html" class="active">HOME</a>
+      <a href="dashboard.html">GRADES</a>
+      <a href="assignments.html">ASSIGNMENTS</a>
+    </div>
+
+    <div class="user-section" onclick="window.location.href='settings.html'">
+      <div class="user-avatar" id="userAvatar"></div>
+      <div class="user-info">
+        <div class="user-name" id="userName">Student</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass-card">
+    <h1 id="welcomeTitle">Welcome!</h1>
+    <h2>Weekly Timetable</h2>
+
+    <table class="timetable-table" id="timetable">
+      <thead>
+        <tr>
+          <th>Period</th>
+          <th>Mon</th>
+          <th>Tue</th>
+          <th>Wed</th>
+          <th>Thu</th>
+          <th>Fri</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td data-cell="1-mon"></td><td data-cell="1-tue"></td><td data-cell="1-wed"></td><td data-cell="1-thu"></td><td data-cell="1-fri"></td></tr>
+        <tr><td>2</td><td data-cell="2-mon"></td><td data-cell="2-tue"></td><td data-cell="2-wed"></td><td data-cell="2-thu"></td><td data-cell="2-fri"></td></tr>
+        <tr><td>3</td><td data-cell="3-mon"></td><td data-cell="3-tue"></td><td data-cell="3-wed"></td><td data-cell="3-thu"></td><td data-cell="3-fri"></td></tr>
+        <tr><td>4</td><td data-cell="4-mon"></td><td data-cell="4-tue"></td><td data-cell="4-wed"></td><td data-cell="4-thu"></td><td data-cell="4-fri"></td></tr>
+        <tr><td>5</td><td data-cell="5-mon"></td><td data-cell="5-tue"></td><td data-cell="5-wed"></td><td data-cell="5-thu"></td><td data-cell="5-fri"></td></tr>
+        <tr><td>7</td><td data-cell="7-mon"></td><td data-cell="7-tue"></td><td data-cell="7-wed"></td><td data-cell="7-thu"></td><td data-cell="7-fri"></td></tr>
+        <tr><td>8</td><td data-cell="8-mon"></td><td data-cell="8-tue"></td><td data-cell="8-wed"></td><td data-cell="8-thu"></td><td data-cell="8-fri"></td></tr>
+      </tbody>
+    </table>
+
+    <h2>Upcoming Deadlines</h2>
+    <div class="deadline-input-container">
+      <input id="deadlineInput" class="deadline-input" type="text" placeholder="Add something to do...">
+      <button class="add-btn" onclick="addDeadline()">Add</button>
+    </div>
+    <ul id="deadlineList"></ul>
+  </div>
+
+<script>
+    // 1. AUTH & CONFIG
+    const userId = sessionStorage.getItem("userId");
+    const user = sessionStorage.getItem("loggedInUser") || "Student";
+   const API_BASE = "http://localhost:3000/api";
+
+    // CHECK IF LOGGED IN 
+    if (!userId) {
+      window.location.href = "login.html";
+    }
+
+    // Set UI Header Details
+    document.getElementById("welcomeTitle").textContent = "Welcome, " + user + "!";
+    document.getElementById("userName").textContent = user;
+    document.getElementById("userAvatar").textContent = user.charAt(0).toUpperCase();
+
+    function toggleMenu() {
+      document.getElementById("sideMenu").classList.toggle("open");
+      document.getElementById("overlay").classList.toggle("active");
+    }
+
+    // 2. LOAD TIMETABLE FROM DATABASE
+   async function loadTimetable() {
+  try {
+    const res = await fetch(`${API_BASE}/timetable/${userId}`);
+    const result = await res.json();
+    
+    console.log("Timetable Data Received:", result); // <-- ADD THIS LINE
+
+    if (result.success && result.data) {
+      result.data.forEach(item => {
+        const cell = document.querySelector(`[data-cell="${item.cellId}"]`);
+        if (cell) cell.textContent = item.content;
+      });
+    }
+  } catch (err) {
+    console.error("Database load failed:", err);
+  }
+}
+
+    // 3. INLINE EDITING & DATABASE SAVING
+    document.querySelectorAll("[data-cell]").forEach(cell => {
+      const cellId = cell.getAttribute("data-cell");
+
+      cell.onclick = function() {
+        if (this.querySelector('input')) return;
+
+        const currentText = this.textContent;
+        this.innerHTML = ''; 
+
+        const input = document.createElement('input');
+        input.value = currentText;
+        input.style.cssText = "width:100%; background:transparent; color:white; border:none; text-align:center; outline:none;";
+
+        this.appendChild(input);
+        input.focus();
+
+        // Save to MySQL when user clicks away
+        input.onblur = async () => {
+          const newVal = input.value.trim();
+          this.textContent = newVal;
+
+          try {
+            await fetch(`${API_BASE}/timetable/save`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                userId: userId, // Links data to the LOGGED IN user
+                cellId: cellId, 
+                content: newVal 
+              })
+            });
+          } catch (err) {
+            console.error("Save to MySQL failed:", err);
+          }
+        };
+
+        input.onkeydown = (e) => { if (e.key === 'Enter') input.blur(); };
+      };
+    });
+
+// --- DATABASE DEADLINES LOGIC ---
+    async function getDeadlines() {
+      const list = document.getElementById("deadlineList");
+      list.innerHTML = "";
+      
+      try {
+        const res = await fetch(`${API_BASE}/deadlines/${userId}`);
+        const result = await res.json();
+
+        if (result.success) {
+          result.data.forEach((task) => {
+            const li = document.createElement("li");
+            // Note: we use task.id from the database for the delete function
+            li.innerHTML = `${task.task_text} <button class="delete-btn" onclick="removeDeadline(${task.id})">Remove</button>`;
+            list.appendChild(li);
+          });
+        }
+      } catch (err) { console.error("Load deadlines failed", err); }
+    }
+
+    async function addDeadline() {
+      const field = document.getElementById("deadlineInput");
+      const text = field.value.trim();
+      if (!text) return;
+
+      try {
+        await fetch(`${API_BASE}/deadlines/add`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: userId, text: text })
+        });
+        field.value = "";
+        getDeadlines(); // Reload the list from the database
+      } catch (err) { console.error("Add failed", err); }
+    }
+
+    async function removeDeadline(id) {
+      if(!confirm("Are you sure?")) return;
+      try {
+        await fetch(`${API_BASE}/deadlines/${id}`, { method: 'DELETE' });
+        getDeadlines(); // Refresh list
+      } catch (err) { console.error("Delete failed", err); }
+    }
+    loadTimetable(); // This triggers the MySQL fetch for Timetable
+getDeadlines();
+  </script>
+</body>
+</html>
