@@ -4,9 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NECTA Assist - Grades Dashboard</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root{
       --glass-bg: rgba(255,255,255,0.10);
@@ -29,7 +27,6 @@
     body::before{
       content:"";position:fixed;inset:0;background:rgba(0,0,0,0.44);z-index:0;
     }
-
     .top-bar{
       position:fixed;top:0;left:0;right:0;height:60px;
       background:rgba(0,0,0,0.7);backdrop-filter:blur(15px);
@@ -38,7 +35,6 @@
     }
     .menu-icon{color:white;font-size:28px;cursor:pointer;margin-right:15px;transition:0.3s;}
     .app-title{color:white;font-size:22px;font-weight:600;}
-
     .side-menu{
       position:fixed;top:60px;left:-280px;width:280px;height:calc(100vh - 60px);
       background:rgba(0,0,0,0.85);backdrop-filter:blur(20px);transition:0.3s ease;
@@ -52,7 +48,6 @@
     }
     .side-menu a:hover{background:rgba(255,255,255,0.1);border-left-color:#667eea;}
     .side-menu a.active{background:rgba(102,126,234,0.2);border-left-color:#667eea;}
-
     .user-section{
       border-top:1px solid rgba(255,255,255,0.1);padding:20px;display:flex;align-items:center;gap:12px;
       cursor:pointer;transition:0.3s;
@@ -62,48 +57,56 @@
       background:linear-gradient(135deg,#667eea,#764ba2);
       display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:bold;color:white;
     }
-
     .wrap{position:relative;z-index:1;width:100%;max-width:1200px;margin-top:80px;}
-    .top { display: flex; gap: 12px; flex-wrap: wrap; }
-    .card{ background:var(--glass-bg); border:1px solid var(--glass-border); padding:14px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.35); }
-    .welcome.card{ min-width:300px; }
-    .welcome h1{font-size:32px;margin-bottom:6px;} /* Fixed size */
-
+    .top{display:flex;gap:12px;flex-wrap:wrap;}
+    .card{background:var(--glass-bg);border:1px solid var(--glass-border);padding:14px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.35);}
+    .welcome.card{min-width:300px;}
+    .welcome h1{font-size:32px;margin-bottom:6px;}
     .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
     select,input,button{padding:10px 12px;border-radius:8px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.12);color:#fff;}
-    button{font-weight:700;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));cursor:pointer; border:none;}
-    .clear-btn { background: rgba(231, 76, 60, 0.6); }
-
-    .layout{ margin-top:12px; display:grid; grid-template-columns: 1fr 420px; gap:14px; }
+    button{font-weight:700;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));cursor:pointer;border:none;}
+    .clear-btn{background:rgba(231,76,60,0.6);}
+    .change-course-btn{background:rgba(255,165,0,0.6);font-size:12px;padding:8px 12px;}
+    .layout{margin-top:12px;display:grid;grid-template-columns:1fr 420px;gap:14px;}
     @media(max-width:980px){.layout{grid-template-columns:1fr;}}
-
     table{width:100%;border-collapse:collapse;font-size:14px;}
     th,td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,0.06);text-align:left;}
     .chip{padding:4px 10px;border-radius:999px;font-weight:700;font-size:12px;}
-    
-    .grade-A{background:#9be7a220; color:#9be7a2; border:1px solid #9be7a230;}
-    .grade-B{background:#a8d1ff20; color:#a8d1ff; border:1px solid #a8d1ff30;}
-    .grade-C{background:#ffd16620; color:#ffd166; border:1px solid #ffd16630;}
-    .grade-D{background:#ff9b9b20; color:#ff9b9b; border:1px solid #ff9b9b30;}
-    .grade-F{background:#ff6b6b20; color:#ff6b6b; border:1px solid #ff6b6b30;}
-
+    .grade-A{background:#9be7a220;color:#9be7a2;border:1px solid #9be7a230;}
+    .grade-B{background:#a8d1ff20;color:#a8d1ff;border:1px solid #a8d1ff30;}
+    .grade-C{background:#ffd16620;color:#ffd166;border:1px solid #ffd16630;}
+    .grade-D{background:#ff9b9b20;color:#ff9b9b;border:1px solid #ff9b9b30;}
+    .grade-F{background:#ff6b6b20;color:#ff6b6b;border:1px solid #ff6b6b30;}
     .summary .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.04);}
     .progress-line{height:8px;border-radius:8px;background:rgba(255,255,255,0.06);overflow:hidden;}
     .progress-fill{height:100%;background:linear-gradient(90deg,#667eea,#764ba2);transition:width 0.5s ease;}
-
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:997;display:none;}
     .overlay.active{display:block;}
+    .toast{
+      position:fixed;bottom:30px;right:30px;background:rgba(6,214,160,0.9);
+      color:white;padding:12px 20px;border-radius:10px;font-weight:600;
+      z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none;
+    }
+    .toast.show{opacity:1;}
+    .toast.error{background:rgba(231,76,60,0.9);}
+    .delete-btn{
+      background:rgba(231,76,60,0.7);border:none;color:white;
+      padding:4px 10px;border-radius:6px;cursor:pointer;font-size:12px;
+    }
+    .course-badge{
+      display:inline-block;padding:4px 12px;border-radius:999px;
+      background:rgba(102,126,234,0.3);border:1px solid #667eea;
+      font-size:13px;font-weight:600;margin-left:8px;
+    }
+    .chart-wrap{position:relative;width:100%;margin-top:20px;}
   </style>
 </head>
-
 <body>
   <div class="top-bar">
     <div class="menu-icon" onclick="toggleMenu()">☰</div>
     <div class="app-title">NECTA Assist</div>
   </div>
-
   <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
-
   <div id="sideMenu" class="side-menu">
     <div class="menu-links">
       <a href="home.html">HOME</a>
@@ -126,26 +129,37 @@
         <div class="muted">NECTA Grade Calculator</div>
       </div>
 
-      <div class="card" style="flex:1; min-width:420px;">
-        <div style="font-weight:800; margin-bottom:8px">Manage Subjects</div>
-        <div class="controls">
+      <div class="card" style="flex:1;min-width:320px;">
+        <div style="font-weight:800;margin-bottom:8px">
+          Manage Subjects
+          <span id="courseBadge" class="course-badge" style="display:none"></span>
+        </div>
+
+        <!-- Course selection (shown when no course locked) -->
+        <div id="coursePickerRow" class="controls">
           <select id="courseSelect">
-            <option value="">Select Course</option>
+            <option value="">Select Your Course</option>
             <option value="Arts">Arts</option>
             <option value="Business">Business</option>
             <option value="Science">Science</option>
           </select>
+          <button onclick="lockCourse()">Confirm Course</button>
+        </div>
+
+        <!-- Subject input (shown after course locked) -->
+        <div id="subjectInputRow" class="controls" style="display:none;margin-top:8px;">
           <select id="subjectSelect"><option value="">Select Subject</option></select>
-          <input id="rawMark" placeholder="Mark (0-100)" type="number" />
+          <input id="rawMark" placeholder="Mark (0-100)" type="number" min="0" max="100"/>
           <button onclick="addOrUpdateSubject()">Add / Update</button>
           <button id="clearAllBtn" class="clear-btn">Clear All</button>
+          <button class="change-course-btn" onclick="changeCourse()">Change Course</button>
         </div>
       </div>
     </div>
 
     <div class="layout">
       <div class="card">
-        <div style="font-weight:800; margin-bottom:10px">Your Results</div>
+        <div style="font-weight:800;margin-bottom:10px">Your Results</div>
         <table id="subjectsTable">
           <thead>
             <tr>
@@ -162,27 +176,24 @@
       </div>
 
       <div class="card summary">
-        <div style="font-weight:800; margin-bottom:10px">Performance Summary</div>
+        <div style="font-weight:800;margin-bottom:10px">Performance Summary</div>
+        <div class="row"><span>Subjects Entered</span><span id="subCount">-</span></div>
         <div class="row"><span>Average Mark</span><span id="avgMark">-</span></div>
         <div class="row"><span>Total Points (Best 7)</span><span id="totalPoints">-</span></div>
         <div class="row"><span>Division Estimate</span><span id="division">-</span></div>
         <div class="row"><span>Top Subject</span><span id="bestSub">-</span></div>
-        
-        <div style="margin-top:20px;">
-          <canvas id="barChart" height="200"></canvas>
-          <canvas id="pieChart" height="200"></canvas>
-        </div>
+        <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+        <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
       </div>
     </div>
   </div>
 
-<script>
-   const API_BASE = "https://nectaassist.onrender.com/api";
+  <div class="toast" id="toast"></div>
 
-   
+<script>
+  const API_BASE = "https://nectaassist.onrender.com/api";
   const USER = sessionStorage.getItem("loggedInUser") || "Student";
   const userId = sessionStorage.getItem("userId");
-
 
   if (!userId) { window.location.href = "login.html"; }
 
@@ -193,158 +204,231 @@
   let barChart = null;
   let pieChart = null;
 
-  // 2. NECTA LOGIC 
+  // Course subjects
+  const compSubs = ["Mathematics","Swahili","English","Biology","Geography","History","Civics"];
+  const extras = {
+    Arts: ["Fine Art","Music","Arabic","French","Kiswahili Literature"],
+    Business: ["Bookkeeping","Commerce","Economics"],
+    Science: ["Physics","Chemistry","Additional Mathematics"]
+  };
+
+  // --- COURSE LOCK LOGIC ---
+  function lockCourse() {
+    const course = document.getElementById("courseSelect").value;
+    if (!course) return showToast("Please select a course first!", true);
+    sessionStorage.setItem("lockedCourse", course);
+    applyCourse(course);
+    showToast(`Course locked: ${course}`);
+  }
+
+  function applyCourse(course) {
+    document.getElementById("coursePickerRow").style.display = "none";
+    document.getElementById("subjectInputRow").style.display = "flex";
+    document.getElementById("courseBadge").textContent = course;
+    document.getElementById("courseBadge").style.display = "inline-block";
+
+    const subSel = document.getElementById("subjectSelect");
+    subSel.innerHTML = '<option value="">Select Subject</option>';
+    [...compSubs, ...extras[course]].forEach(s => subSel.add(new Option(s, s)));
+  }
+
+  function changeCourse() {
+    if (!confirm("Changing course will clear ALL your saved grades. Are you sure?")) return;
+    sessionStorage.removeItem("lockedCourse");
+    document.getElementById("coursePickerRow").style.display = "flex";
+    document.getElementById("subjectInputRow").style.display = "none";
+    document.getElementById("courseBadge").style.display = "none";
+    clearAllGrades();
+  }
+
+  // Check if course already locked from previous session
+  const savedCourse = sessionStorage.getItem("lockedCourse");
+  if (savedCourse) applyCourse(savedCourse);
+
+  // --- NECTA GRADE LOGIC ---
   function getGrade(m) {
-    if (m >= 75) return {g: "A", p: 1};
-    if (m >= 65) return {g: "B", p: 2};
-    if (m >= 45) return {g: "C", p: 3};
-    if (m >= 25) return {g: "D", p: 4};
-    return {g: "F", p: 5};
+    if (m >= 75) return {g:"A", p:1};
+    if (m >= 65) return {g:"B", p:2};
+    if (m >= 45) return {g:"C", p:3};
+    if (m >= 25) return {g:"D", p:4};
+    return {g:"F", p:5};
   }
 
   function getDiv(p, count) {
-    if (count < 7) return "Need 7 Subjects";
-    if (p <= 17) return "Division I";
+    if (count === 0) return "-";
+    const best = Math.min(count, 7);
+    if (count < 7) return `Partial (${count}/7 subjects)`;
+    if (p <= 17) return "Division I 🏆";
     if (p <= 21) return "Division II";
     if (p <= 25) return "Division III";
     if (p <= 33) return "Division IV";
     return "Division 0";
   }
 
-  // 3. UI FUNCTIONS
+  // --- TOAST NOTIFICATION ---
+  function showToast(msg, isError = false) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.className = "toast show" + (isError ? " error" : "");
+    setTimeout(() => t.className = "toast", 2500);
+  }
+
+  // --- MENU ---
   function toggleMenu() {
     document.getElementById("sideMenu").classList.toggle("open");
     document.getElementById("overlay").classList.toggle("active");
   }
 
-  const courseSelect = document.getElementById("courseSelect");
-  const subjectSelect = document.getElementById("subjectSelect");
-  const compSubs = ["Mathematics","Swahili","English","Biology","Geography","History","Civics"];
-  const extras = { Arts:[], Business:["Bookkeeping","Commerce"], Science:["Physics","Chemistry"] };
-
-  courseSelect.onchange = () => {
-    subjectSelect.innerHTML = '<option value="">Select Subject</option>';
-    if(!courseSelect.value) return;
-    [...compSubs, ...extras[courseSelect.value]].forEach(s => {
-      subjectSelect.add(new Option(s, s));
-    });
-  };
-
-  // 4. CORE FUNCTIONALITY (Now using MySQL via Fetch)
+  // --- RENDER TABLE ---
   async function renderAll() {
     try {
       const res = await fetch(`${API_BASE}/grades/${userId}`);
       const result = await res.json();
-      
       const tbody = document.querySelector("#subjectsTable tbody");
       tbody.innerHTML = "";
 
       if (!result.success || !result.data || result.data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">No subjects added.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;opacity:0.6;">No subjects added yet.</td></tr>';
         updateSummary([]);
         return;
       }
 
-      // Map DB columns to local logic names
-      const list = result.data.map(item => ({ name: item.subject_name, raw: item.mark }));
+      const list = result.data.map(item => ({ id: item.id, name: item.subject_name, raw: Number(item.mark) }));
 
       list.forEach((s) => {
-        const resGrade = getGrade(s.raw);
+        const g = getGrade(s.raw);
         tbody.innerHTML += `
           <tr>
             <td>${s.name}</td>
             <td>${s.raw}%</td>
-            <td><span class="chip grade-${resGrade.g}">${resGrade.g}</span></td>
-            <td>${resGrade.p}</td>
+            <td><span class="chip grade-${g.g}">${g.g}</span></td>
+            <td>${g.p}</td>
             <td><div class="progress-line"><div class="progress-fill" style="width:${s.raw}%"></div></div></td>
-            <td><small>Auto-Saved</small></td>
+            <td><button class="delete-btn" onclick="deleteSubject('${s.name}')">Remove</button></td>
           </tr>`;
       });
+
       updateSummary(list);
     } catch (err) {
       console.error("Failed to load grades:", err);
+      showToast("Failed to load grades.", true);
     }
   }
 
+  // --- SUMMARY & CHARTS ---
   function updateSummary(list) {
+    document.getElementById("subCount").textContent = list.length;
+
     if (list.length === 0) {
       ["avgMark","totalPoints","division","bestSub"].forEach(id => document.getElementById(id).textContent = "-");
-      if(barChart) barChart.destroy();
-      if(pieChart) pieChart.destroy();
+      if (barChart) { barChart.destroy(); barChart = null; }
+      if (pieChart) { pieChart.destroy(); pieChart = null; }
       return;
     }
 
-    const avg = Math.round(list.reduce((a, b) => a + Number(b.raw), 0) / list.length);
-    const sortedPoints = list.map(s => getGrade(s.raw).p).sort((a,b) => a - b);
-    const best7 = sortedPoints.slice(0, 7).reduce((a, b) => a + b, 0);
-    
+    const avg = Math.round(list.reduce((a,b) => a + b.raw, 0) / list.length);
+    const sortedPoints = [...list].sort((a,b) => getGrade(a.raw).p - getGrade(b.raw).p);
+    const best7 = sortedPoints.slice(0, 7).reduce((a,b) => a + getGrade(b.raw).p, 0);
+    const topSub = [...list].sort((a,b) => b.raw - a.raw)[0].name;
+
     document.getElementById("avgMark").textContent = avg + "%";
-    document.getElementById("totalPoints").textContent = best7;
+    document.getElementById("totalPoints").textContent = list.length >= 7 ? best7 : `${best7} (need ${7 - list.length} more)`;
     document.getElementById("division").textContent = getDiv(best7, list.length);
-    document.getElementById("bestSub").textContent = list.sort((a,b) => b.raw - a.raw)[0].name;
+    document.getElementById("bestSub").textContent = topSub;
 
     updateCharts(list);
   }
 
   function updateCharts(list) {
-    const ctxB = document.getElementById("barChart").getContext("2d");
-    const ctxP = document.getElementById("pieChart").getContext("2d");
-    if(barChart) barChart.destroy();
-    if(pieChart) pieChart.destroy();
+    if (barChart) barChart.destroy();
+    if (pieChart) pieChart.destroy();
 
-    barChart = new Chart(ctxB, {
+    barChart = new Chart(document.getElementById("barChart").getContext("2d"), {
       type: 'bar',
       data: {
         labels: list.map(s => s.name),
-        datasets: [{ label: 'Marks', data: list.map(s => s.raw), backgroundColor: '#667eea' }]
+        datasets: [{ label: 'Marks', data: list.map(s => s.raw), backgroundColor: '#667eea', borderRadius: 4 }]
       },
-      options: { plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100 } } }
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { min:0, max:100, ticks: { color:'#fff' }, grid: { color:'rgba(255,255,255,0.1)' } }, x: { ticks: { color:'#fff' }, grid: { display:false } } }
+      }
     });
 
-    const grades = {A:0, B:0, C:0, D:0, F:0};
+    const grades = {A:0,B:0,C:0,D:0,F:0};
     list.forEach(s => grades[getGrade(s.raw).g]++);
+    const nonZero = Object.entries(grades).filter(([,v]) => v > 0);
 
-    pieChart = new Chart(ctxP, {
+    pieChart = new Chart(document.getElementById("pieChart").getContext("2d"), {
       type: 'pie',
       data: {
-        labels: ['A','B','C','D','F'],
-        datasets: [{ data: Object.values(grades), backgroundColor: ['#9be7a2','#a8d1ff','#ffd166','#ff9b9b','#ff6b6b'] }]
-      }
+        labels: nonZero.map(([k]) => k),
+        datasets: [{ data: nonZero.map(([,v]) => v), backgroundColor: ['#9be7a2','#a8d1ff','#ffd166','#ff9b9b','#ff6b6b'] }]
+      },
+      options: { responsive: true, plugins: { legend: { labels: { color:'#fff' } } } }
     });
   }
 
+  // --- ADD / UPDATE ---
   async function addOrUpdateSubject() {
-    const name = subjectSelect.value;
+    const name = document.getElementById("subjectSelect").value;
     const raw = Number(document.getElementById("rawMark").value);
-    if(!name || isNaN(raw) || raw < 0 || raw > 100) return alert("Select subject and valid mark!");
+    if (!name) return showToast("Please select a subject!", true);
+    if (isNaN(raw) || raw < 0 || raw > 100) return showToast("Enter a valid mark between 0 and 100!", true);
 
     try {
       const response = await fetch(`${API_BASE}/grades/save`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type':'application/json'},
         body: JSON.stringify({ userId, subject_name: name, mark: raw })
       });
-      
       if (response.ok) {
-        renderAll(); // Refresh table from DB
-        document.getElementById("rawMark").value = ""; // Clear input
+        document.getElementById("rawMark").value = "";
+        document.getElementById("subjectSelect").value = "";
+        showToast(`${name} saved successfully!`);
+        renderAll();
+      } else {
+        showToast("Error saving grade.", true);
       }
     } catch (err) {
-      alert("Error saving to database.");
+      showToast("Error saving to database.", true);
     }
   }
 
-  document.getElementById("clearAllBtn").onclick = async () => {
-    if(!confirm("Are you sure? This deletes ALL grades from the database!")) return;
+  // --- DELETE SINGLE SUBJECT ---
+  async function deleteSubject(subjectName) {
+    if (!confirm(`Remove ${subjectName}?`)) return;
+    try {
+      const res = await fetch(`${API_BASE}/grades/${userId}`);
+      const result = await res.json();
+      const item = result.data.find(d => d.subject_name === subjectName);
+      if (!item) return;
+
+      await fetch(`${API_BASE}/grades/delete/${item.id}`, { method: 'DELETE' });
+      showToast(`${subjectName} removed.`);
+      renderAll();
+    } catch (err) {
+      showToast("Error removing subject.", true);
+    }
+  }
+
+  // --- CLEAR ALL ---
+  async function clearAllGrades() {
     try {
       await fetch(`${API_BASE}/grades/clear/${userId}`, { method: 'DELETE' });
       renderAll();
     } catch (err) {
-      alert("Error clearing data.");
+      showToast("Error clearing data.", true);
     }
+  }
+
+  document.getElementById("clearAllBtn").onclick = async () => {
+    if (!confirm("This deletes ALL grades. Are you sure?")) return;
+    showToast("All grades cleared.");
+    clearAllGrades();
   };
 
-  // Initial Load
   renderAll();
 </script>
 </body>
