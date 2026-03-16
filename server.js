@@ -191,6 +191,13 @@ app.delete('/api/grades/clear/:userId', (req, res) => {
     });
 });
 
+app.delete('/api/grades/delete/:id', (req, res) => {
+    db.query('DELETE FROM grades WHERE id = ?', [req.params.id], (err) => {
+        if (err) return res.status(500).json({ success: false, error: err.message });
+        res.json({ success: true });
+    });
+});
+
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 SERVER IS LIVE on port ${PORT}`);
 });
